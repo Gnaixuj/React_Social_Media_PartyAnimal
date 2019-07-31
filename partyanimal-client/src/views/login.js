@@ -10,11 +10,11 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 // Redux
-import { connect } from 'react-redux';
-import { loginUser } from '../redux/actions/userActions';
+import { connect } from "react-redux";
+import { loginUser } from "../redux/actions/userActions";
 
 const styles = {
   form: {
@@ -55,13 +55,13 @@ class login extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps) // TBR
+    console.log(nextProps); // TBR
     if (nextProps.ui.errors) {
       this.setState({
         errors: nextProps.ui.errors
       });
     }
-  };
+  }
 
   handleChange = event => {
     this.setState({
@@ -99,7 +99,10 @@ class login extends Component {
   };
 
   render() {
-    const { classes, ui: { loading } } = this.props;
+    const {
+      classes,
+      ui: { loading }
+    } = this.props;
     const { errors } = this.state;
     return (
       // sm take up the whole width
@@ -153,7 +156,7 @@ class login extends Component {
             >
               Login
               {loading && (
-                <CircularProgress className={classes.progress} size={30}/>
+                <CircularProgress className={classes.progress} size={30} />
               )}
             </Button>
             <br />
@@ -175,18 +178,23 @@ login.propTypes = {
   ui: PropTypes.object.isRequired
 };
 
-const mapStateToProps = state => { // takes in global state
-  return ({ // now the user & ui is brought in from the global state and map into our component props
+const mapStateToProps = state => {
+  // takes in global state
+  return {
+    // now the user & ui is brought in from the global state and map into our component props
     user: state.user,
     ui: state.ui
-  });
-}
+  };
+};
 
-const mapActionsToProps = {
+const mapDispatchToProps = {
   loginUser
-}
+};
 
 // export default withStyles(styles)(login);
-export default connect(mapStateToProps, mapActionsToProps)(withStyles(styles)(login));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withStyles(styles)(login));
 // connect can take 4 parameters, we need the first 2 in this case
-// https://react-redux.js.org/api/connect 
+// https://react-redux.js.org/api/connect

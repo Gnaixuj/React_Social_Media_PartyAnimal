@@ -3,10 +3,13 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import "./App.css";
 import themeFile from "./utilities/theme"; // To Be Used
 import jwtDecode from "jwt-decode";
+import axios from "axios";
 
 // Redux
 import { Provider } from "react-redux";
 import store from "./redux/store";
+import { SET_AUTHENTICATED } from "./redux/types";
+import { logoutUser, getUserDetails } from "./redux/actions/userActions"; 
 
 // MUI
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
@@ -43,18 +46,19 @@ const theme = createMuiTheme({
   }
 });
 
-let authenticated;
 const token = localStorage.FBIdToken;
 if (token) {
   const decodedToken = jwtDecode(token);
   console.log(decodedToken); // TBR
   if (decodedToken.exp * 1000 < Date.now()) {
     // token is expired, redirect to login page
+    store.dispatch(logoutUser()); // authenticated = false
     window.location.href = "/login";
-    authenticated = false;
   } else {
     // token not expired, prevent logined user from accessing login & signup page
-    authenticated = true;
+    store.dispatch({ type: SET_AUTHENTICATED }); // authenticated = true
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    store.dispatch(getUserDetails());
   }
 }
 
@@ -71,14 +75,12 @@ function App() {
                 exact
                 path="/login"
                 component={login}
-                authenticated={authenticated}
               />
               <Route exact path="/" component={home} />
               <AuthRoute
                 exact
                 path="/signup"
                 component={signup}
-                authenticated={authenticated}
               />
             </Switch>
           </div>

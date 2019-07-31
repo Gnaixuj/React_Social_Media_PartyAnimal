@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import AppLogo from "../images/app-logo.jpg";
-import axios from "axios";
 import { Link } from "react-router-dom";
 
 // MUI
@@ -10,34 +9,38 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from "@material-ui/core/CircularProgress";
+
+// Redux
+import { connect } from "react-redux";
+import { signupUser } from "../redux/actions/userActions";
 
 const styles = {
-    form: {
-      textAlign: "center"
-    },
-    image: {
-      height: 225,
-      width: 225
-    },
-    title: {
-      margin: "0 auto 20px auto"
-    },
-    textField: {
-      margin: "10px auto 10px auto"
-    },
-    button: {
-      margin: "10px auto 10px auto",
-      position: "relative" // so that progress can be in the middle
-    },
-    error: {
-      color: "red",
-      fontSize: "0.8rem"
-    },
-    progress: {
-      position: "absolute"
-    }
-  };
+  form: {
+    textAlign: "center"
+  },
+  image: {
+    height: 225,
+    width: 225
+  },
+  title: {
+    margin: "0 auto 20px auto"
+  },
+  textField: {
+    margin: "10px auto 10px auto"
+  },
+  button: {
+    margin: "10px auto 10px auto",
+    position: "relative" // so that progress can be in the middle
+  },
+  error: {
+    color: "red",
+    fontSize: "0.8rem"
+  },
+  progress: {
+    position: "absolute"
+  }
+};
 
 class signup extends Component {
   constructor() {
@@ -47,9 +50,18 @@ class signup extends Component {
       password: "",
       confirmPassword: "",
       handle: "",
-      loading: false, // make a loading spinner
+      // loading: false, // make a loading spinner
       errors: {}
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps); // TBR
+    if (nextProps.ui.errors) {
+      this.setState({
+        errors: nextProps.ui.errors
+      });
+    }
   }
 
   handleChange = event => {
@@ -60,36 +72,40 @@ class signup extends Component {
 
   handleSubmit = event => {
     event.preventDefault(); // so as to not reload the page && showing the entered info in the url
-    this.setState({
-      loading: true
-    });
+    // this.setState({
+    //   loading: true
+    // });
     const newUserData = {
       email: this.state.email,
       password: this.state.password,
       confirmPassword: this.state.confirmPassword,
       handle: this.state.handle
     };
-    axios
-      .post("/signup", newUserData)
-      .then(response => {
-        console.log(response.data);
-        localStorage.setItem('FBIdToken', `Bearer ${response.data.token}`); // to store the token  so that we still 
-        this.setState({                                                    // access to token if app refresh or browser closed
-          loading: false
-        });
-        this.props.history.push("/"); // helps to redirect page to Home
-      })
-      .catch(err => {
-        this.setState({
-          errors: err.response.data,
-          loading: false
-        });
-      });
+    this.props.signupUser(newUserData, this.props.history);
+    // axios
+    //   .post("/signup", newUserData)
+    //   .then(response => {
+    //     console.log(response.data);
+    //     localStorage.setItem('FBIdToken', `Bearer ${response.data.token}`); // to store the token  so that we still
+    //     this.setState({                                                    // access to token if app refresh or browser closed
+    //       loading: false
+    //     });
+    //     this.props.history.push("/"); // helps to redirect page to Home
+    //   })
+    //   .catch(err => {
+    //     this.setState({
+    //       errors: err.response.data,
+    //       loading: false
+    //     });
+    //   });
   };
 
   render() {
-    const { classes } = this.props;
-    const { errors, loading } = this.state;
+    const {
+      classes,
+      ui: { loading }
+    } = this.props;
+    const { errors } = this.state;
     return (
       // sm take up the whole width
       <Grid container className={classes.form}>
@@ -97,7 +113,7 @@ class signup extends Component {
         <Grid item sm={4}>
           <img className={classes.image} src={AppLogo} alt="Party Animal" />
           <Typography className={classes.title} variant="h3">
-            Signup 
+            Signup
           </Typography>
           <form noValidate onSubmit={this.handleSubmit}>
             {/* noValidate - not validate the email field */}
@@ -168,7 +184,7 @@ class signup extends Component {
             >
               Signup
               {loading && (
-                <CircularProgress className={classes.progress} size={30}/>
+                <CircularProgress className={classes.progress} size={30} />
               )}
             </Button>
             <br />
@@ -184,7 +200,26 @@ class signup extends Component {
 }
 
 signup.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  signupUser: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
+  ui: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(signup);
+const mapStateToProps = state => {
+  // takes in global state
+  return {
+    // now the user & ui is brought in from the global state and map into our component props
+    user: state.user,
+    ui: state.ui
+  };
+};
+
+const mapDispatchToProps = {
+  signupUser
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withStyles(styles)(signup));
