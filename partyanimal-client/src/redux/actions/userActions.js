@@ -78,3 +78,13 @@ export const getUserDetails = () => dispatch => {
     })
     .catch(err => console.log(err));
 };
+
+export const uploadProfileImg = formData => dispatch => {
+  dispatch({ type: LOADING_USER });
+  axios
+    .post("/user/image", formData)
+    .then(() => {
+      dispatch(getUserDetails());
+    })
+    .catch(err => console.log(err));
+};

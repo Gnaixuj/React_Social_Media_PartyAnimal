@@ -6,6 +6,7 @@ import theme from "../utilities/theme";
 
 // Redux
 import { connect } from "react-redux";
+import { uploadProfileImg, logoutUser } from "../redux/actions/userActions";
 
 // MUI
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -13,11 +14,14 @@ import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import MUILink from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
+import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
 
 // Icons
 import LocationOn from "@material-ui/icons/LocationOn";
 import CalendarToday from "@material-ui/icons/CalendarToday";
 import IconLink from "@material-ui/icons/Link";
+import IconEdit from "@material-ui/icons/Edit";
 
 const styles = theme => {
   return {
@@ -70,6 +74,17 @@ const styles = theme => {
 };
 
 class Profile extends Component {
+  handleChange = event => {
+    const image = event.target.files[0];
+    const formData = new FormData();
+    formData.append("Image", image, image.name);
+    this.props.uploadProfileImg(formData);
+  };
+
+  handleEditPicture = () => {
+    const fileInput = document.getElementById("profileImg");
+    fileInput.click(); // opens file selection window
+  };
 
   render() {
     const {
@@ -93,8 +108,18 @@ class Profile extends Component {
       <Paper className={classes.paper}>
         <div className={classes.profile}>
           <div className="image-wrapper">
-            <img src={imageUrl} alt="Profile" className="profile-image"/>
-            <input type="file" id="profileImg" onChange={this.handleChange}/>
+            <img className="profile-image" src={imageUrl} alt="Profile" />
+            <input
+              type="file"
+              id="profileImg"
+              hidden="hidden"
+              onChange={this.handleChange}
+            />
+            <Tooltip title="Change Profile Pic" placement="top">
+              <IconButton className="button" onClick={this.handleEditPicture}>
+                <IconEdit color="primary" />
+              </IconButton>
+            </Tooltip>
             <hr />
           </div>
           <div className="profile-details">
@@ -159,7 +184,9 @@ class Profile extends Component {
 
 Profile.propTypes = {
   classes: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired
+  user: PropTypes.object.isRequired,
+  uploadProfileImg: PropTypes.func.isRequired,
+  logoutUser: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => {
@@ -168,4 +195,12 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(withStyles(styles)(Profile));
+const mapDispatchToProps = {
+  uploadProfileImg,
+  logoutUser
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withStyles(styles)(Profile));

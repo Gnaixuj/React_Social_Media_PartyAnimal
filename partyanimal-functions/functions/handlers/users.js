@@ -95,17 +95,17 @@ exports.login = (request, response) => {
 };
 
 exports.uploadProfileImg = (request, response) => {
-    const busboy = require('busboy');
+    const BusBoy = require('busboy');
     const path = require('path');
     const os = require('os');
     const fs = require('fs'); // filesystem
 
-    const busBoy = new busboy({ headers: request.headers });
+    const busboy = new BusBoy({ headers: request.headers });
     
     let imageName;
     let imageToBeUploaded = {};
 
-    busBoy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         // console.log(fieldname); // TBR
         // console.log(filename); // TBR
         // console.log(mimetype); // TBR
@@ -124,8 +124,8 @@ exports.uploadProfileImg = (request, response) => {
     // https://googleapis.dev/nodejs/storage/latest/Bucket.html#upload
     // https://googleapis.dev/nodejs/storage/latest/global.html#UploadOptions
     // https://cloud.google.com/storage/docs/json_api/v1/objects/insert#request_properties_JSON
-    busBoy.on('finish', () => { // 'finish' is an event
-        admin.storage().bucket().upload(imageToBeUploaded.filePath, {
+    busboy.on('finish', () => { // 'finish' is an event
+        admin.storage().bucket(firebaseConfig.storageBucket).upload(imageToBeUploaded.filePath, {
             resumable: false,
             metadata: {
                 metadata: {
@@ -149,7 +149,7 @@ exports.uploadProfileImg = (request, response) => {
         });
     });
 
-    busBoy.end(request.rawBody);
+    busboy.end(request.rawBody);
 };
 
 exports.addUserDetails = (request, response) => {
