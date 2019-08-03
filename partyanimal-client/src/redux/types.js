@@ -2,6 +2,7 @@
 // Used To Check Our Mistakes
 
 // Data Reducer Types
+export const LOADING_DATA = 'LOADING_DATA'; // To Build
 
 // UI Reducer Types
 export const SET_ERRORS = 'SET_ERRORS';
