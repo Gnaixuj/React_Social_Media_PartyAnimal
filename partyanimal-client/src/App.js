@@ -9,7 +9,7 @@ import axios from "axios";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import { SET_AUTHENTICATED } from "./redux/types";
-import { logoutUser, getUserDetails } from "./redux/actions/userActions"; 
+import { logoutUser, getUserDetails } from "./redux/actions/userActions";
 
 // MUI
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
@@ -57,7 +57,7 @@ if (token) {
   } else {
     // token not expired, prevent logined user from accessing login & signup page
     store.dispatch({ type: SET_AUTHENTICATED }); // authenticated = true
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = token;
     store.dispatch(getUserDetails());
   }
 }
@@ -71,17 +71,9 @@ function App() {
           <Navbar />
           <div className="container">
             <Switch>
-              <AuthRoute
-                exact
-                path="/login"
-                component={login}
-              />
+              <AuthRoute exact path="/login" component={login} />
               <Route exact path="/" component={home} />
-              <AuthRoute
-                exact
-                path="/signup"
-                component={signup}
-              />
+              <AuthRoute exact path="/signup" component={signup} />
             </Switch>
           </div>
         </BrowserRouter>
